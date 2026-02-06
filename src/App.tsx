@@ -19,37 +19,44 @@ function UserStatus({ identity, claims, loading, error }: UserStatusProps) {
     : "none";
 
   return (
-    <>
-      <p>
-        Status: <strong>{status}</strong>
-      </p>
-      <p>
-        Pairwise subject:{" "}
-        <code className="text-neutral-400">
-          {identity.pairwiseSub || "none"}
+    <div className="space-y-4">
+      <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+        <span className="text-neutral-500">Status</span>
+        <span className={identity.pairwiseSub ? "text-emerald-400" : "text-neutral-300"}>
+          {status}
+        </span>
+
+        <span className="text-neutral-500">Subject</span>
+        <code className="truncate font-mono text-neutral-400">
+          {identity.pairwiseSub || "—"}
         </code>
-      </p>
-      <p>
-        Token preview:{" "}
-        <code className="text-neutral-400">{tokenPreview}</code>
-      </p>
 
-      <h3 className="font-medium">Decoded Profile (Unverified)</h3>
-      <pre className="overflow-auto rounded-md border border-neutral-900 bg-neutral-950 p-3.5 text-[13px] leading-relaxed">
-        {JSON.stringify(claims, null, 2) || "null"}
-      </pre>
+        <span className="text-neutral-500">Token</span>
+        <code className="truncate font-mono text-neutral-400">
+          {tokenPreview}
+        </code>
+      </div>
 
-      {error ? (
-        <p>
-          Error: <code className="text-red-400">{error}</code>
+      <div>
+        <p className="mb-2 text-xs font-medium tracking-wide text-neutral-500 uppercase">
+          Decoded Claims
         </p>
-      ) : null}
-    </>
+        <pre className="overflow-auto rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 font-mono text-[13px] leading-relaxed text-neutral-400">
+          {JSON.stringify(claims, null, 2) || "null"}
+        </pre>
+      </div>
+
+      {error && (
+        <p className="text-sm text-red-400">
+          Error: <code className="font-mono">{error}</code>
+        </p>
+      )}
+    </div>
   );
 }
 
 const btn =
-  "cursor-pointer rounded-md border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-sm text-neutral-200 no-underline";
+  "cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-sm text-neutral-300 no-underline transition-colors hover:bg-white/[0.08] hover:text-neutral-100";
 
 export default function App() {
   const auth = useShooAuth({
@@ -58,17 +65,18 @@ export default function App() {
   });
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl bg-neutral-950 px-4 py-12 font-sans leading-relaxed text-neutral-200">
-      <h1 className="mt-0 text-2xl font-medium tracking-tight">
-        Shoo + Vite Example
-      </h1>
-      <p className="text-neutral-500">
-        Client-only flow with fixed callback path{" "}
-        <code className="text-neutral-400">/auth/callback</code> and return-to
-        restore.
-      </p>
+    <main className="mx-auto min-h-screen max-w-2xl px-6 py-16 font-sans text-neutral-200 antialiased">
+      <header className="mb-10">
+        <h1 className="mb-1 text-lg font-semibold tracking-tight text-neutral-100">
+          Shoo + Vite
+        </h1>
+        <p className="text-sm text-neutral-500">
+          Client-only auth flow &middot; callback at{" "}
+          <code className="font-mono text-neutral-400">/auth/callback</code>
+        </p>
+      </header>
 
-      <div className="mb-5 flex flex-wrap gap-2.5">
+      <div className="mb-10 flex flex-wrap gap-2">
         <a
           className={btn}
           href="https://shoo.dev/authorize"
@@ -90,10 +98,10 @@ export default function App() {
           Sign In + PII
         </a>
         <button className={btn} type="button" onClick={auth.refreshIdentity}>
-          Refresh Identity
+          Refresh
         </button>
         <button className={btn} type="button" onClick={auth.clearIdentity}>
-          Clear Identity
+          Clear
         </button>
       </div>
 
@@ -104,9 +112,8 @@ export default function App() {
         error={auth.error}
       />
 
-      <p className="mt-6 text-neutral-500">
-        Note: this example is intentionally client-only. Verify Shoo tokens on
-        your backend before trusting claims.
+      <p className="mt-12 text-xs text-neutral-600">
+        This demo is client-only. Always verify Shoo tokens on your backend.
       </p>
     </main>
   );

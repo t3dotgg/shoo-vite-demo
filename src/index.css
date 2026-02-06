@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@theme {
+  --font-mono: "Berkeley Mono", "SF Mono", "JetBrains Mono", "Fira Code",
+    ui-monospace, monospace;
+}
+
+html {
+  background: #0a0a0a;
+  color-scheme: dark;
+}
