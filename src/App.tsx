@@ -1,68 +1,10 @@
-import type { MouseEvent } from "react";
 import type { UseShooAuthResult } from "@shoojs/react";
 import { useShooAuth } from "@shoojs/react";
-
-const SHOO_BASE_URL = "https://shoo.dev";
-const CALLBACK_PATH = "/auth/callback";
-
-function getTokenPreview(token: string | undefined): string {
-  if (!token) return "none";
-  return `${token.slice(0, 22)}...${token.slice(-16)}`;
-}
-
-type SignInProps = Pick<
-  UseShooAuthResult,
-  "signIn" | "refreshIdentity" | "clearIdentity"
->;
 
 type UserStatusProps = Pick<
   UseShooAuthResult,
   "identity" | "claims" | "loading" | "error"
 >;
-
-function onSignInLinkClick(
-  event: MouseEvent<HTMLAnchorElement>,
-  signIn: UseShooAuthResult["signIn"],
-  requestPii: boolean,
-): void {
-  event.preventDefault();
-  void signIn({ requestPii });
-}
-
-function SignIn({ signIn, refreshIdentity, clearIdentity }: SignInProps) {
-  return (
-    <div className="mb-5 flex flex-wrap gap-2.5">
-      <a
-        className="cursor-pointer rounded-md border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-sm text-neutral-200 no-underline"
-        href={`${SHOO_BASE_URL}/authorize`}
-        onClick={(event) => onSignInLinkClick(event, signIn, false)}
-      >
-        Sign In
-      </a>
-      <a
-        className="cursor-pointer rounded-md border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-sm text-neutral-200 no-underline"
-        href={`${SHOO_BASE_URL}/authorize?pii=true`}
-        onClick={(event) => onSignInLinkClick(event, signIn, true)}
-      >
-        Sign In + PII
-      </a>
-      <button
-        className="cursor-pointer rounded-md border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-sm text-neutral-200"
-        type="button"
-        onClick={refreshIdentity}
-      >
-        Refresh Identity
-      </button>
-      <button
-        className="cursor-pointer rounded-md border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-sm text-neutral-200"
-        type="button"
-        onClick={clearIdentity}
-      >
-        Clear Identity
-      </button>
-    </div>
-  );
-}
 
 function UserStatus({ identity, claims, loading, error }: UserStatusProps) {
   const status = loading
@@ -70,6 +12,11 @@ function UserStatus({ identity, claims, loading, error }: UserStatusProps) {
     : identity.pairwiseSub
       ? "Signed in"
       : "Signed out";
+
+  const token = identity.token;
+  const tokenPreview = token
+    ? `${token.slice(0, 22)}...${token.slice(-16)}`
+    : "none";
 
   return (
     <>
@@ -84,9 +31,7 @@ function UserStatus({ identity, claims, loading, error }: UserStatusProps) {
       </p>
       <p>
         Token preview:{" "}
-        <code className="text-neutral-400">
-          {getTokenPreview(identity.token)}
-        </code>
+        <code className="text-neutral-400">{tokenPreview}</code>
       </p>
 
       <h3 className="font-medium">Decoded Profile (Unverified)</h3>
@@ -103,10 +48,13 @@ function UserStatus({ identity, claims, loading, error }: UserStatusProps) {
   );
 }
 
+const btn =
+  "cursor-pointer rounded-md border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-sm text-neutral-200 no-underline";
+
 export default function App() {
   const auth = useShooAuth({
-    shooBaseUrl: SHOO_BASE_URL,
-    callbackPath: CALLBACK_PATH,
+    shooBaseUrl: "https://shoo.dev",
+    callbackPath: "/auth/callback",
   });
 
   return (
@@ -116,20 +64,38 @@ export default function App() {
       </h1>
       <p className="text-neutral-500">
         Client-only flow with fixed callback path{" "}
-        <code className="text-neutral-400">{CALLBACK_PATH}</code> and return-to
+        <code className="text-neutral-400">/auth/callback</code> and return-to
         restore.
       </p>
 
-      <SignIn
-        signIn={auth.signIn}
-        refreshIdentity={auth.refreshIdentity}
-        clearIdentity={auth.clearIdentity}
-      />
-
-      <p>
-        Shoo base URL:{" "}
-        <code className="text-neutral-400">{SHOO_BASE_URL}</code>
-      </p>
+      <div className="mb-5 flex flex-wrap gap-2.5">
+        <a
+          className={btn}
+          href="https://shoo.dev/authorize"
+          onClick={(e) => {
+            e.preventDefault();
+            void auth.signIn({ requestPii: false });
+          }}
+        >
+          Sign In
+        </a>
+        <a
+          className={btn}
+          href="https://shoo.dev/authorize?pii=true"
+          onClick={(e) => {
+            e.preventDefault();
+            void auth.signIn({ requestPii: true });
+          }}
+        >
+          Sign In + PII
+        </a>
+        <button className={btn} type="button" onClick={auth.refreshIdentity}>
+          Refresh Identity
+        </button>
+        <button className={btn} type="button" onClick={auth.clearIdentity}>
+          Clear Identity
+        </button>
+      </div>
 
       <UserStatus
         identity={auth.identity}
