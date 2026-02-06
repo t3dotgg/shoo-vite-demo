@@ -59,10 +59,14 @@ const btn =
   "cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-sm text-neutral-300 no-underline transition-colors hover:bg-white/[0.08] hover:text-neutral-100";
 
 export default function App() {
+  const redirectUri = `${window.location.origin}/auth/callback`;
+
   const auth = useShooAuth({
     shooBaseUrl: "https://shoo.dev",
     callbackPath: "/auth/callback",
   });
+
+  const authorizeUrl = `https://shoo.dev/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`;
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl px-6 py-16 font-sans text-neutral-200 antialiased">
@@ -79,7 +83,7 @@ export default function App() {
       <div className="mb-10 flex flex-wrap gap-2">
         <a
           className={btn}
-          href="https://shoo.dev/authorize"
+          href={authorizeUrl}
           onClick={(e) => {
             e.preventDefault();
             void auth.signIn({ requestPii: false });
@@ -89,7 +93,7 @@ export default function App() {
         </a>
         <a
           className={btn}
-          href="https://shoo.dev/authorize?pii=true"
+          href={`${authorizeUrl}&scope=profile+email`}
           onClick={(e) => {
             e.preventDefault();
             void auth.signIn({ requestPii: true });
