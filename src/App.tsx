@@ -112,9 +112,13 @@ export default function App() {
         error={auth.error}
       />
 
-      <p className="mt-12 text-xs text-neutral-600">
-        This demo is client-only. Always verify Shoo tokens on your backend.
-      </p>
+      <footer className="mt-12 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-600">
+        <span>Client-only demo. Verify tokens on your backend.</span>
+        <span>&middot;</span>
+        <a href="https://shoo.dev" className="text-neutral-500 hover:text-neutral-300 transition-colors" target="_blank" rel="noopener noreferrer">shoo.dev</a>
+        <span>&middot;</span>
+        <a href="https://github.com/t3dotgg/shoo-vite-demo" className="text-neutral-500 hover:text-neutral-300 transition-colors" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </footer>
     </main>
   );
 }
